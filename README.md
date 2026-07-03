@@ -74,7 +74,7 @@ python3 graph/workflow.py data/invoices/inv_001_clean.json  # single invoice via
 `agents/db_investigator.py` loads `.env` automatically via `python-dotenv` — no need to
 `export` the key in your shell. `.env` is in `.gitignore`.
 
-## Phase 3 (current) — critic loop
+## Phase 3 — critic loop
 
 Reviews the DB Investigator's flags before they become a verdict. The pipeline is
 now `db_investigator -> flag_raiser -> critic` (LangGraph), where:
@@ -108,18 +108,71 @@ python3 eval/run_benchmark.py                              # false-positive rate
 python3 graph/workflow.py data/invoices/inv_008_recurring_retainer_false_positive.json
 ```
 
+## Phase 4 (current) — Policy Assessor (RAG)
+
+Adds a second, independent source of flags: spend-category approval rules that
+the DB Investigator has no way to check (it only knows vendor-approval status
+and payment history, not policy). Pipeline is now
+`db_investigator -> flag_raiser -> policy_assessor -> critic`.
+
+- **`policy_assessor`** (RAG, LLM) embeds a query from the invoice (vendor,
+  amount, description) via OpenAI (`text-embedding-3-small`), retrieves the
+  top-3 relevant docs from a ChromaDB index over `data/policies/*.md`, and asks
+  the LLM whether the invoice violates any of them (e.g. "software subscriptions
+  over $500 require VP approval"). If the invoice's own description already
+  shows approval evidence (a ticket number, a named approver), it isn't flagged
+  in the first place.
+- The **critic** now reviews the union of DB Investigator flags and Policy
+  Assessor flags together, using the same confirm/dismiss + vendor-history
+  mechanism from Phase 3. The final verdict is still derived mechanically from
+  the combined, reviewed flag set.
+
+```
+data/
+├── policies/       # 6 small policy docs (subscriptions, professional services,
+│                   #   equipment, marketing, travel, recurring-payment exemption)
+└── policy_index/   # ChromaDB persistent index built from data/policies/
+scripts/
+└── build_policy_index.py  # embeds + indexes the policy corpus
+agents/
+└── policy_assessor.py      # RAG: retrieve -> LLM violation check -> Flag(s)
+```
+
+### Corpus-mismatch note
+
+CLAUDE.md flags "corpus mismatch" as the documented failure mode from a prior
+audit-tool project, and it showed up here too during testing: over a small,
+generic corpus, embedding retrieval for an invoice with no real category signal
+(e.g. a generic office-supplies test invoice) still returns *something* as the
+"closest" doc, and a naive prompt will treat that as a genuine violation. Fixed
+two ways: (1) the assessor's output schema restricts "violated policy" to an
+enum of the five actionable category docs — the `recurring_payments.md`
+exemption doc can never itself be "violated" — and (2) the prompt explicitly
+tells the model to match on the invoice's *description* (what's actually being
+purchased), not the vendor's name (a vendor named "...Software" doesn't make
+every invoice from them a software subscription).
+
+### Run it
+
+```bash
+python3 scripts/build_policy_index.py                      # (re)build the policy index
+python3 eval/run_benchmark.py                              # false-positive rate: raw vs. critic
+python3 graph/workflow.py data/invoices/inv_009_subscription_needs_approval.json
+```
+
 ### Current result
 
-On the 8 labeled invoices (4 of which are truly clean):
+On the 10 labeled invoices (5 of which are truly clean):
 
 | | Raw (pre-critic) | Critic-reviewed |
 |---|---|---|
-| Verdict accuracy | 88% | **100%** |
-| False-positive rate | 25% | **0%** |
+| Verdict accuracy | 90% | **100%** |
+| False-positive rate | 20% | **0%** |
 
-The one case the raw baseline gets wrong: a legitimate 6-month biweekly $2,400
-retainer to Meridian Consulting Group, which the naive same-vendor+amount+month
-rule flags as a duplicate. The critic reviews the vendor's payment history, sees
-the consistent 14-day cadence going back 6+ months, and dismisses the flag.
+The one case the raw baseline still gets wrong: the same legitimate biweekly
+retainer from Phase 3, now also passing through the Policy Assessor untouched
+(it's not a subscription/consulting/equipment/marketing/travel spend, so no
+policy applies) — the critic dismisses the DB Investigator's duplicate flag as
+before.
 
-Next: Phase 4 adds the Policy Assessor (RAG over policy docs) — see `PLAN.md`.
+Next: Phase 5 adds extraction/OCR and the Streamlit frontend — see `PLAN.md`.

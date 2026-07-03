@@ -1,0 +1,13 @@
+{
+  "invoice_id": "INV-1010",
+  "vendor": "TechForge Software",
+  "amount": 1500.00,
+  "invoice_date": "2026-08-06",
+  "description": "Annual subscription renewal for the analytics dashboard platform. VP-approved per approval ticket APV-2291 on 2026-07-20.",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": false
+  },
+  "expected_verdict": "approve",
+  "note": "Phase 4 false-positive test: same policy threshold as inv_009 (subscription over $500), but the description already carries VP approval evidence (ticket APV-2291), so the Policy Assessor should not flag it at all."
+}

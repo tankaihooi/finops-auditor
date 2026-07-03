@@ -1,0 +1,13 @@
+{
+  "invoice_id": "INV-1009",
+  "vendor": "TechForge Software",
+  "amount": 1200.00,
+  "invoice_date": "2026-08-05",
+  "description": "Annual subscription renewal for the analytics dashboard platform.",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": false
+  },
+  "expected_verdict": "flag",
+  "note": "Phase 4 policy test: approved vendor, no DB-level issue, but a $1,200 software subscription with no approval evidence should trip the software_subscriptions.md policy (over $500 requires VP approval) and the Critic should confirm it (severity medium -> flag)."
+}

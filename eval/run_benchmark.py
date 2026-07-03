@@ -1,13 +1,13 @@
 """
-Phase 3 headline metric: false-positive rate before vs. after the Critic agent.
+Headline metric: false-positive rate before vs. after the Critic agent.
 
 Runs every labeled invoice in data/invoices/ through the full pipeline
-(db_investigator -> flag_raiser -> critic) and compares two verdicts against
-each invoice's "expected_verdict":
+(db_investigator -> flag_raiser -> policy_assessor -> critic) and compares two
+verdicts against each invoice's "expected_verdict":
 
-  - raw verdict:    the naive, mechanical rollup of the DB Investigator's raw
-                     flags (agents.flagging.verdict_from_flags) - no judgment,
-                     no context, no critic review.
+  - raw verdict:    the naive, mechanical rollup of every flag raised before
+                     critic review (agents.flagging.verdict_from_flags applied
+                     to raw_flags + policy_flags) - no judgment, no context.
   - critic verdict:  the Critic agent's final_verdict after reviewing those
                      flags against the vendor's payment history.
 
@@ -27,7 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from agents.flagging import raise_raw_flags, verdict_from_flags
+from agents.flagging import verdict_from_flags
 from graph.state import AuditState
 from graph.workflow import build_graph
 
@@ -62,7 +62,7 @@ def run() -> bool:
 
         result = app.invoke(AuditState(raw_invoice=clean_invoice))
 
-        raw_verdict = verdict_from_flags(result["raw_flags"])
+        raw_verdict = verdict_from_flags(result["raw_flags"] + result["policy_flags"])
         critic_verdict = result["final_verdict"].decision
 
         rows.append(
