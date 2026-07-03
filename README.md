@@ -1,6 +1,23 @@
+---
+title: FinOps Autonomous Auditor
+emoji: 🧾
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: "1.32.0"
+app_file: app.py
+pinned: false
+---
+
 # FinOps Autonomous Auditor
 
+Live demo: https://huggingface.co/spaces/tankaihooi/finops-auditor
+
 See `PLAN.md` for full architecture and phase plan, `CLAUDE.md` for build principles.
+
+> The block above is Hugging Face Spaces config (required at the top of this file to
+> deploy `app.py` as a Streamlit Space) — it renders as plain text on GitHub, which is
+> expected since this repo is dual-hosted.
 
 > **LLM provider:** this project uses **OpenAI**, not Anthropic — no Anthropic API key
 > is available. Any LLM-calling code (`agents/db_investigator.py` and later agents)
@@ -108,7 +125,7 @@ python3 eval/run_benchmark.py                              # false-positive rate
 python3 graph/workflow.py data/invoices/inv_008_recurring_retainer_false_positive.json
 ```
 
-## Phase 4 (current) — Policy Assessor (RAG)
+## Phase 4 — Policy Assessor (RAG)
 
 Adds a second, independent source of flags: spend-category approval rules that
 the DB Investigator has no way to check (it only knows vendor-approval status
@@ -175,4 +192,40 @@ retainer from Phase 3, now also passing through the Policy Assessor untouched
 policy applies) — the critic dismisses the DB Investigator's duplicate flag as
 before.
 
-Next: Phase 5 adds extraction/OCR and the Streamlit frontend — see `PLAN.md`.
+## Phase 5 (current) — Streamlit frontend
+
+`app.py` is a two-tab UI over the exact same pipeline used by the eval scripts —
+no separate app logic to keep in sync.
+
+- **Audit an invoice** — pick one of the 10 labeled test invoices (with its
+  ground-truth verdict and note shown for context) or build a custom one from a
+  form, then run it through `db_investigator -> flag_raiser -> policy_assessor
+  -> critic` and see every stage: generated SQL, raw flags, and the critic's
+  confirm/dismiss review with rationale.
+- **Evaluation** — reruns the Phase 1-4 labeled benchmark in the browser and
+  shows the false-positive-rate / accuracy delta as `st.metric` cards — the
+  same headline number `eval/run_benchmark.py` prints.
+
+**Extraction/OCR is out of scope, by design** (per PLAN.md's Phase 5 note) —
+turning a raw scanned invoice image into the structured JSON this whole
+pipeline consumes is documented here as future work, not built. Every input
+path (CLI eval scripts and this UI) takes the same pre-parsed invoice JSON.
+
+### Run it locally
+
+```bash
+streamlit run app.py
+```
+
+Needs `OPENAI_API_KEY` (via `.env`, same as every other phase) and will build
+the ChromaDB policy index on first run if `data/policy_index/` doesn't exist
+yet.
+
+### Deploying to Hugging Face Spaces
+
+The app is a single `app.py` + `requirements.txt`, so it deploys as-is to a
+Streamlit Space. Set `OPENAI_API_KEY` as a Space secret (Settings → Variables
+and secrets) — never commit it. The policy index isn't checked into git (it's
+a non-deterministic binary artifact — see `.gitignore`); the app builds it
+automatically on first load, which costs one small round of embedding calls
+and a few seconds.

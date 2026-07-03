@@ -1,8 +1,8 @@
 # FinOps Autonomous Auditor — Architecture & Plan
 
-> **CURRENT PHASE: 4** — Policy Assessor (agents/policy_assessor.py), RAG over
-> data/policies/*.md via ChromaDB. The Critic now reviews DB Investigator flags AND
-> Policy Assessor flags together. LLM calls in this project go through **OpenAI**,
+> **CURRENT PHASE: 5** — Streamlit frontend (app.py) over the Phase 1-4 pipeline.
+> Extraction/OCR is documented as future work, not built (per this phase's own
+> "leave as JSON-only" option). LLM calls in this project go through **OpenAI**,
 > not Anthropic (no Anthropic API key available).
 > Update this line as phases complete. Claude Code should read this file before starting any new phase.
 
