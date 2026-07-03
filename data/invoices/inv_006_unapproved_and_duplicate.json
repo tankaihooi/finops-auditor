@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1006",
+  "vendor": "Discount IT Hardware",
+  "amount": 1499.99,
+  "invoice_date": "2026-06-20",
+  "description": "Unapproved vendor AND same amount already paid this vendor in June - should fail both checks",
+  "expected": {
+    "vendor_approved": false,
+    "is_duplicate": true
+  },
+  "expected_verdict": "reject"
+}

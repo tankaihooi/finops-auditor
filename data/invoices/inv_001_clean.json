@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1001",
+  "vendor": "Acme Office Supplies",
+  "amount": 350.00,
+  "invoice_date": "2026-07-05",
+  "description": "Approved vendor, unique amount this month - should pass both checks",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": false
+  },
+  "expected_verdict": "approve"
+}

@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1004",
+  "vendor": "CloudNova Hosting",
+  "amount": 3200.00,
+  "invoice_date": "2026-07-15",
+  "description": "Same amount was paid in May and June, but not July - month scoping should keep this a pass",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": false
+  },
+  "expected_verdict": "approve"
+}

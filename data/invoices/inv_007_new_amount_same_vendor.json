@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1007",
+  "vendor": "TechForge Software",
+  "amount": 750.00,
+  "invoice_date": "2026-07-20",
+  "description": "Approved vendor already paid this month, but different amount - should pass both checks",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": false
+  },
+  "expected_verdict": "approve"
+}

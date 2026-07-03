@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1005",
+  "vendor": "Apex Logistics",
+  "amount": 615.40,
+  "invoice_date": "2026-06-30",
+  "description": "Same vendor+amount paid twice already in June - should fail duplicate check",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": true
+  },
+  "expected_verdict": "reject"
+}

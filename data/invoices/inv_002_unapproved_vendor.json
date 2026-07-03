@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1002",
+  "vendor": "Rogue Consulting LLC",
+  "amount": 5000.00,
+  "invoice_date": "2026-07-10",
+  "description": "Vendor not on approved list - should fail vendor check",
+  "expected": {
+    "vendor_approved": false,
+    "is_duplicate": false
+  },
+  "expected_verdict": "flag"
+}

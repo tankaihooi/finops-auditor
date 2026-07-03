@@ -1,0 +1,12 @@
+{
+  "invoice_id": "INV-1003",
+  "vendor": "Acme Office Supplies",
+  "amount": 219.99,
+  "invoice_date": "2026-06-25",
+  "description": "Same vendor+amount already paid twice in June - should fail duplicate check",
+  "expected": {
+    "vendor_approved": true,
+    "is_duplicate": true
+  },
+  "expected_verdict": "reject"
+}
