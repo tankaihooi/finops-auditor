@@ -13,7 +13,9 @@ pinned: false
 
 Live demo: https://huggingface.co/spaces/tankaihooi/finops-auditor
 
-See `PLAN.md` for full architecture and phase plan, `CLAUDE.md` for build principles.
+A multi-agent invoice-auditing pipeline: deterministic DB checks → text-to-SQL DB
+Investigator → RAG Policy Assessor → Critic. Built in phases, with a labeled
+benchmark tracking accuracy and false-positive rate at every step.
 
 > The block above is Hugging Face Spaces config (required at the top of this file to
 > deploy `app.py` as a Streamlit Space) — it renders as plain text on GitHub, which is
@@ -157,8 +159,8 @@ agents/
 
 ### Corpus-mismatch note
 
-CLAUDE.md flags "corpus mismatch" as the documented failure mode from a prior
-audit-tool project, and it showed up here too during testing: over a small,
+"Corpus mismatch" was a documented failure mode from a prior audit-tool
+project, and it showed up here too during testing: over a small,
 generic corpus, embedding retrieval for an invoice with no real category signal
 (e.g. a generic office-supplies test invoice) still returns *something* as the
 "closest" doc, and a naive prompt will treat that as a genuine violation. Fixed
@@ -206,8 +208,8 @@ no separate app logic to keep in sync.
   shows the false-positive-rate / accuracy delta as `st.metric` cards — the
   same headline number `eval/run_benchmark.py` prints.
 
-**Extraction/OCR is out of scope, by design** (per PLAN.md's Phase 5 note) —
-turning a raw scanned invoice image into the structured JSON this whole
+**Extraction/OCR is out of scope, by design** — turning a raw scanned invoice
+image into the structured JSON this whole
 pipeline consumes is documented here as future work, not built. Every input
 path (CLI eval scripts and this UI) takes the same pre-parsed invoice JSON.
 

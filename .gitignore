@@ -4,3 +4,6 @@ __pycache__/
 .venv/
 venv/
 data/policy_index/
+CLAUDE.md
+PLAN.md
+.claude/

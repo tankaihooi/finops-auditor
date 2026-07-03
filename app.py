@@ -8,7 +8,7 @@ Two views:
     critic's confirm/dismiss review with rationale.
   - Evaluation: reruns the Phase 1-4 labeled benchmark and shows the
     false-positive-rate / accuracy delta the critic buys you - the project's
-    headline metric (see CLAUDE.md).
+    headline metric.
 
 Extraction/OCR (turning a raw scanned invoice into the structured JSON this
 app consumes) is out of scope - documented here as future work. Input is
@@ -140,7 +140,7 @@ with tab_eval:
         "Reruns every labeled invoice through the full pipeline and compares the "
         "naive pre-critic verdict against the critic-reviewed verdict, using each "
         "invoice's known-correct `expected_verdict`. This is the project's headline "
-        "metric (CLAUDE.md): false-positive rate before vs. after the critic."
+        "metric: false-positive rate before vs. after the critic."
     )
 
     if st.button("Run benchmark (10 invoices, ~1-2 min)"):
@@ -194,7 +194,4 @@ with tab_eval:
         )
 
 st.divider()
-st.caption(
-    "Architecture details: PLAN.md. Build principles: CLAUDE.md. Source: "
-    "https://github.com/tankaihooi/finops-auditor"
-)
+st.caption("Source: https://github.com/tankaihooi/finops-auditor")
